@@ -1,17 +1,39 @@
-node_modules
+# Node modules (both backend and frontend)
+node_modules/
+frontend/node_modules/
+
+# Hardhat artifacts and cache
+artifacts/
+cache/
+typechain/
+typechain-types/
+
+# Hardhat local chain data
+*.log
+*.tsbuildinfo
+
+# dotenv files (never push secrets)
 .env
+.env.local
+.env.*.local
 
-# Hardhat files
-/cache
-/artifacts
+# Coverage reports
+coverage/
 
-# TypeChain files
-/typechain
-/typechain-types
+# VSCode & IDE stuff
+.vscode/
+.idea/
 
-# solidity-coverage files
-/coverage
-/coverage.json
+# OS junk
+.DS_Store
+Thumbs.db
 
-# Hardhat Ignition default folder for deployments against a local node
-ignition/deployments/chain-31337
+# Build output (frontend)
+frontend/dist/
+frontend/.vite/
+
+# Optional: Ignore ABI JSON exports if you don’t want them versioned
+# frontend/src/abi/*.json
+
+# Optional: Ignore deployed contract addresses if you're storing them locally
+# deployedAddresses.json
