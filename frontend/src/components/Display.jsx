@@ -1,16 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const Display = ({ contract, account }) => {
+
+const Display = ({ contract, account, chainId, refreshKey }) => {
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
     const getData = async () => {
-        const OtherAddress = document.querySelector(".address").value;
+        const OtherAddress = document.querySelector(".address").value.trim();
+
         let dataArray;
         setIsLoading(true);
 
         try {
-            if (OtherAddress) {
+            if (OtherAddress.length > 0) {
                 dataArray = await contract.display(OtherAddress);
             } else {
                 dataArray = await contract.display(account);
@@ -47,6 +49,11 @@ const Display = ({ contract, account }) => {
         }
     };
 
+    useEffect(() => {
+        getData();
+    }, [refreshKey]);
+
+
     return (
         <div className="container-custom fade-in">
             <div className="glass p-6 mb-8">
@@ -56,7 +63,7 @@ const Display = ({ contract, account }) => {
 
                 <div className="bg-gray-700 bg-opacity-30 rounded-lg p-4 mb-6">
                     <p className="text-gray-300 text-sm mb-4 text-center">
-                        🌐 Chain ID: <span className="text-blue-400 font-mono font-medium">{window.ethereum?.networkVersion}</span>
+                        🌐 Chain ID: <span className="text-blue-400 font-mono font-medium">{chainId ?? "Loading..."}</span>
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">

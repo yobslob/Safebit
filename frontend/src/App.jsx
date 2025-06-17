@@ -13,7 +13,12 @@ function App() {
   const [provider, setProvider] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [username, setUsername] = useState('');
+  const [chainId, setChainId] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [signer, setSigner] = useState(null);
   const [networkSupported, setNetworkSupported] = useState(false);
+
+  const triggerRefresh = () => setRefreshKey(prev => prev + 1);
 
   const getContractAddress = (chainId) => {
     const id = String(chainId);
@@ -34,6 +39,20 @@ function App() {
   };
 
   useEffect(() => {
+    if (window.ethereum) {
+      window.ethereum.on("accountsChanged", (accounts) => {
+        setAccount('');
+        setUsername('');
+      });
+
+      window.ethereum.on("chainChanged", () => {
+        window.location.reload();
+      });
+    }
+  }, []);
+
+
+  useEffect(() => {
     const loadBlockchainData = async () => {
       console.log("Inside useEffect, account:", account, "username:", username);
       if (window.ethereum && account && username) {
@@ -41,6 +60,7 @@ function App() {
           const provider = new ethers.BrowserProvider(window.ethereum);
           const signer = await provider.getSigner();
           const { chainId } = await provider.getNetwork();
+          setChainId(Number(chainId));
           console.log("Connected Chain ID (BigInt):", chainId);
           const contractAddress = getContractAddress(chainId);
           console.log("Resolved Contract Address:", contractAddress);
@@ -50,9 +70,11 @@ function App() {
             setContract(null);
             return;
           }
-          const uploadContract = new ethers.Contract(contractAddress, Upload.abi, signer);
+          const contractReadOnly = new ethers.Contract(contractAddress, Upload.abi, provider);
+          const uploadContract = contractReadOnly.connect(signer);
           setProvider(provider);
           setContract(uploadContract);
+          setSigner(signer);
           console.log("Contract object set:", uploadContract);
           setNetworkSupported(true);
         } catch (err) {
@@ -107,7 +129,7 @@ function App() {
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
             <div className="text-center sm:text-left">
               <h1 className="gradient-text text-3xl md:text-4xl font-bold text-shadow-lg">
-                👋 Welcome, {username}
+                Welcome, {username}
               </h1>
               <p className="text-gray-300 mt-2 text-sm md:text-base">
                 🔗 Connected: <span className="font-mono text-blue-400 bg-gray-800 px-2 py-1 rounded">{account.slice(0, 6)}...{account.slice(-4)}</span>
@@ -128,11 +150,11 @@ function App() {
 
       {/* Main Content */}
       <div className="py-8">
-        {modalOpen && <Modal setModalOpen={setModalOpen} contract={contract} />}
+        {modalOpen && <Modal setModalOpen={setModalOpen} contract={contract} signer={signer} />}
 
         <div className="space-y-8">
-          <FileUpload account={account} provider={provider} contract={contract} />
-          <Display account={account} contract={contract} />
+          <FileUpload account={account} provider={provider} contract={contract} triggerRefresh={triggerRefresh} />
+          <Display account={account} contract={contract} chainId={chainId} refreshKey={refreshKey} />
         </div>
       </div>
     </div>

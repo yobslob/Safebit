@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 
-const FileUpload = ({ contract, account, provider }) => {
+const FileUpload = ({ contract, account, provider, triggerRefresh }) => {
     const [file, setFile] = useState(null);
     const [fileName, setFileName] = useState("No image selected");
     const [fileSize, setFileSize] = useState("");
@@ -30,7 +30,14 @@ const FileUpload = ({ contract, account, provider }) => {
                 alert("Smart contract is not loaded yet.");
                 return;
             }
-            await contract.add(account, ImgHash);
+            const tx = await contract.add(account, ImgHash, {
+                gasLimit: 300000,
+            });
+            await tx.wait();
+
+            console.log("Uploading for:", account, "URL:", ImgHash);
+
+            triggerRefresh();
             alert("Successfully Uploaded Image");
             setFileName("No image selected");
             setFile(null);

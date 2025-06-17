@@ -1,10 +1,25 @@
 import { useEffect } from "react";
+import { ethers } from "ethers";
 
-const Modal = ({ setModalOpen, contract }) => {
+const Modal = ({ setModalOpen, contract, signer }) => {
     const sharing = async () => {
         const address = document.querySelector(".address").value;
         if (address) {
-            await contract.allow(address);
+            if (!ethers.isAddress(address)) {
+                alert("Please enter a valid Ethereum address");
+                return;
+            }
+            if (contract.signer && typeof contract.signer.getAddress === 'function') {
+                const signerAddress = await contract.signer.getAddress();
+                console.log("Signer is:", signerAddress);
+            } else {
+                console.warn("Contract signer is undefined or not bound correctly.");
+            }
+
+            const contractWithSigner = contract.connect(signer);
+            const tx = await contractWithSigner.allow(address);
+            await tx.wait();
+
             setModalOpen(false);
         }
     };
