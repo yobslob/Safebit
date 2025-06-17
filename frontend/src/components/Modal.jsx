@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import "./Modal.css";
 
 const Modal = ({ setModalOpen, contract }) => {
     const sharing = async () => {
@@ -15,7 +14,6 @@ const Modal = ({ setModalOpen, contract }) => {
             try {
                 const addressList = await contract.shareAccess();
                 const select = document.querySelector("#selectNumber");
-
                 addressList.forEach(({ user }) => {
                     const option = document.createElement("option");
                     option.textContent = user;
@@ -26,31 +24,44 @@ const Modal = ({ setModalOpen, contract }) => {
                 console.error("Error fetching access list:", err);
             }
         };
-
         contract && accessList();
     }, [contract]);
 
     return (
-        <div className="modalBackground">
-            <div className="modalContainer">
-                <div className="title">Share with</div>
-                <div className="body">
-                    <input
-                        type="text"
-                        className="address"
-                        placeholder="Enter Address"
-                    />
-                </div>
-                <form id="myForm">
-                    <select id="selectNumber">
-                        <option className="address">People With Access</option>
-                    </select>
-                </form>
-                <div className="footer">
-                    <button onClick={() => setModalOpen(false)} id="cancelBtn">
-                        Cancel
-                    </button>
-                    <button onClick={sharing}>Share</button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 fade-in">
+            <div className="glass w-full max-w-md mx-auto slide-up">
+                <div className="p-6">
+                    <div className="text-xl font-semibold text-white mb-4 text-shadow">Share with</div>
+                    <div className="mb-4">
+                        <input
+                            type="text"
+                            className="address input-field focus-ring"
+                            placeholder="Enter Address"
+                        />
+                    </div>
+                    <form id="myForm" className="mb-4">
+                        <select
+                            id="selectNumber"
+                            className="input-field focus-ring"
+                        >
+                            <option className="address">People With Access</option>
+                        </select>
+                    </form>
+                    <div className="flex justify-end space-x-3">
+                        <button
+                            onClick={() => setModalOpen(false)}
+                            id="cancelBtn"
+                            className="btn-secondary"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={sharing}
+                            className="btn-primary"
+                        >
+                            Share
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

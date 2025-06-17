@@ -16,7 +16,7 @@ function App() {
   const [networkSupported, setNetworkSupported] = useState(false);
 
   const getContractAddress = (chainId) => {
-    const id = String(chainId); // ← FIXED here
+    const id = String(chainId);
     switch (id) {
       case "31337":
         console.log("Connected Chain ID:", window.ethereum.networkVersion);
@@ -40,24 +40,20 @@ function App() {
         try {
           const provider = new ethers.BrowserProvider(window.ethereum);
           const signer = await provider.getSigner();
-
-          const { chainId } = await provider.getNetwork(); // BigInt like 31337n
+          const { chainId } = await provider.getNetwork();
           console.log("Connected Chain ID (BigInt):", chainId);
-
-          const contractAddress = getContractAddress(chainId); // We fixed this
+          const contractAddress = getContractAddress(chainId);
           console.log("Resolved Contract Address:", contractAddress);
-
           if (!contractAddress) {
             alert("Unsupported network. Please connect to Localhost, Goerli, or Mainnet.");
             setNetworkSupported(false);
             setContract(null);
             return;
           }
-
           const uploadContract = new ethers.Contract(contractAddress, Upload.abi, signer);
           setProvider(provider);
           setContract(uploadContract);
-          console.log("Contract object set:", uploadContract); // ADD THIS
+          console.log("Contract object set:", uploadContract);
           setNetworkSupported(true);
         } catch (err) {
           console.error("Error setting up provider or contract:", err);
@@ -68,8 +64,6 @@ function App() {
     loadBlockchainData();
   }, [account, username]);
 
-
-
   // Login screen
   if (!account || !username) {
     return <Login setAccount={setAccount} setUsername={setUsername} />;
@@ -78,10 +72,13 @@ function App() {
   // Unsupported network screen
   if (!networkSupported) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-4">Unsupported Network</h2>
-          <p>Please connect your wallet to Localhost (31337), Goerli (5), or Mainnet (1).</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 bg-pattern flex items-center justify-center p-4">
+        <div className="glass card-hover max-w-md p-8 text-center">
+          <div className="text-red-400 text-6xl mb-6">⚠️</div>
+          <h2 className="text-2xl font-semibold mb-4 text-white text-shadow">Unsupported Network</h2>
+          <p className="text-gray-300 leading-relaxed">
+            Please connect your wallet to Localhost (31337), Goerli (5), or Mainnet (1).
+          </p>
         </div>
       </div>
     );
@@ -90,33 +87,54 @@ function App() {
   // Still loading contract
   if (!contract) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-        <p>Connecting to Smart Contract...</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 bg-pattern flex items-center justify-center">
+        <div className="text-center">
+          <div className="spinner w-16 h-16 mx-auto mb-6"></div>
+          <p className="text-xl text-white text-shadow">Connecting to Smart Contract...</p>
+        </div>
       </div>
     );
   }
 
   console.log("Current contract state:", contract);
 
-
   // App UI
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center py-10">
-      <h1 className="text-4xl font-bold mb-4">Welcome, {username}</h1>
-      <p className="mb-6">Connected: {account}</p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 bg-pattern fade-in">
+      {/* Header */}
+      <div className="glass sticky top-0 z-40 border-b border-gray-700">
+        <div className="container-custom py-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+            <div className="text-center sm:text-left">
+              <h1 className="gradient-text text-3xl md:text-4xl font-bold text-shadow-lg">
+                👋 Welcome, {username}
+              </h1>
+              <p className="text-gray-300 mt-2 text-sm md:text-base">
+                🔗 Connected: <span className="font-mono text-blue-400 bg-gray-800 px-2 py-1 rounded">{account.slice(0, 6)}...{account.slice(-4)}</span>
+              </p>
+            </div>
 
-      {!modalOpen && (
-        <button
-          className="bg-indigo-500 px-4 py-2 rounded hover:bg-indigo-600"
-          onClick={() => setModalOpen(true)}
-        >
-          Share
-        </button>
-      )}
-      {modalOpen && <Modal setModalOpen={setModalOpen} contract={contract} />}
+            {!modalOpen && (
+              <button
+                className="btn-primary px-8 py-3 text-lg"
+                onClick={() => setModalOpen(true)}
+              >
+                🤝 Share Access
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
 
-      <FileUpload account={account} provider={provider} contract={contract} />
-      <Display account={account} contract={contract} />
+      {/* Main Content */}
+      <div className="py-8">
+        {modalOpen && <Modal setModalOpen={setModalOpen} contract={contract} />}
+
+        <div className="space-y-8">
+          <FileUpload account={account} provider={provider} contract={contract} />
+          <Display account={account} contract={contract} />
+        </div>
+      </div>
     </div>
   );
 }
