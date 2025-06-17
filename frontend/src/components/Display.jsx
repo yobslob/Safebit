@@ -41,6 +41,8 @@ const Display = ({ contract, account }) => {
 
     return (
         <>
+            <p>Chain ID: {window.ethereum?.networkVersion}</p>
+
             <div className="image-list">{data}</div>
             <input
                 type="text"

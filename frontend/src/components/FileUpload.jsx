@@ -28,7 +28,12 @@ const FileUpload = ({ contract, account, provider }) => {
             });
 
             const ImgHash = `https://gateway.pinata.cloud/ipfs/${resFile.data.IpfsHash}`;
+            if (!contract) {
+                alert("Smart contract is not loaded yet.");
+                return;
+            }
             await contract.add(account, ImgHash);
+
 
             alert("Successfully Uploaded Image");
             setFileName("No image selected");
@@ -42,6 +47,8 @@ const FileUpload = ({ contract, account, provider }) => {
 
     const retrieveFile = (e) => {
         const data = e.target.files[0];
+        console.log("selected file:", data);
+
         const reader = new FileReader();
         reader.readAsArrayBuffer(data);
         reader.onloadend = () => {
@@ -73,11 +80,13 @@ const FileUpload = ({ contract, account, provider }) => {
                     name="data"
                     onChange={retrieveFile}
                 />
+
                 <span className="textArea">Image: {fileName}</span>
                 {fileSize && <span className="textArea">Size: {fileSize}</span>}
-                <button type="submit" className="upload" disabled={!file}>
+                <button type="submit" className="upload" disabled={!file || !contract}>
                     Upload File
                 </button>
+
             </form>
         </div>
     );
