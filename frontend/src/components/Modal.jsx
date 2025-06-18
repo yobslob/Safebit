@@ -1,12 +1,13 @@
 import { useEffect } from "react";
 import { ethers } from "ethers";
+import toast from "react-hot-toast";
 
 const Modal = ({ setModalOpen, contract, signer }) => {
     const sharing = async () => {
         const address = document.querySelector(".address").value;
         if (address) {
             if (!ethers.isAddress(address)) {
-                alert("Please enter a valid Ethereum address");
+                toast.error("Please enter a valid Ethereum address");
                 return;
             }
             if (contract.signer && typeof contract.signer.getAddress === 'function') {

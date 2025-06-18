@@ -1,4 +1,5 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 const Login = ({ setAccount, setUsername }) => {
     const [inputName, setInputName] = useState("");
@@ -6,7 +7,7 @@ const Login = ({ setAccount, setUsername }) => {
 
     const connectWallet = async () => {
         if (!window.ethereum) {
-            alert("Install MetaMask first!");
+            toast.error("Install MetaMask first!");
             return;
         }
 
@@ -23,16 +24,16 @@ const Login = ({ setAccount, setUsername }) => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 bg-pattern flex items-center justify-center p-4">
-            <div className="glass card-hover bounce-in max-w-md w-full p-8">
+        <div className="min-h-screen glowing-purple-bg flex items-center justify-center p-4">
+            <div className="glass bounce-in max-w-md w-full p-8">
                 <div className="text-center mb-8">
                     <h1 className="gradient-text text-4xl font-bold mb-4 text-shadow-lg">
-                        🔐 SafeBit
+                        SafeBit
                     </h1>
                     <p className="text-gray-300 text-lg">Secure Image Sharing on Blockchain</p>
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-5">
                     <div>
                         <label className="block text-gray-300 text-sm font-medium mb-2">
                             👤 Username
@@ -48,7 +49,7 @@ const Login = ({ setAccount, setUsername }) => {
 
                     <button
                         onClick={connectWallet}
-                        className={`btn-success w-full py-4 text-lg ${isConnecting || !inputName ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`btn-success w-full py-2 text-lg ${isConnecting || !inputName ? 'opacity-50 cursor-not-allowed' : ''}`}
                         disabled={!inputName || isConnecting}
                     >
                         {isConnecting ? (
@@ -57,7 +58,7 @@ const Login = ({ setAccount, setUsername }) => {
                                 <span>Connecting...</span>
                             </div>
                         ) : (
-                            "🦊 Connect MetaMask Wallet"
+                            "Connect Wallet"
                         )}
                     </button>
                 </div>

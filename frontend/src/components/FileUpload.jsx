@@ -1,7 +1,9 @@
+// frontend/src/components/FileUpload.jsx
 import { useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 
-const FileUpload = ({ contract, account, provider, triggerRefresh }) => {
+const FileUpload = ({ contract, account, signer, triggerRefresh }) => {
     const [file, setFile] = useState(null);
     const [fileName, setFileName] = useState("No image selected");
     const [fileSize, setFileSize] = useState("");
@@ -15,6 +17,7 @@ const FileUpload = ({ contract, account, provider, triggerRefresh }) => {
         try {
             const formData = new FormData();
             formData.append("file", file);
+
             const resFile = await axios({
                 method: "post",
                 url: "https://api.pinata.cloud/pinning/pinFileToIPFS",
@@ -23,28 +26,30 @@ const FileUpload = ({ contract, account, provider, triggerRefresh }) => {
                     pinata_api_key: import.meta.env.VITE_PINATA_API_KEY,
                     pinata_secret_api_key: import.meta.env.VITE_PINATA_SECRET_API_KEY,
                     "Content-Type": "multipart/form-data",
-                }
+                },
             });
+
             const ImgHash = `https://gateway.pinata.cloud/ipfs/${resFile.data.IpfsHash}`;
-            if (!contract) {
-                alert("Smart contract is not loaded yet.");
+
+            if (!contract || !signer) {
+                toast.error("Smart contract or signer is not initialized.");
                 return;
             }
-            const tx = await contract.add(account, ImgHash, {
+
+            const contractWithSigner = contract.connect(signer);
+            const tx = await contractWithSigner.add(account, ImgHash, {
                 gasLimit: 300000,
             });
             await tx.wait();
 
-            console.log("Uploading for:", account, "URL:", ImgHash);
-
+            toast.success("Successfully Uploaded Image");
             triggerRefresh();
-            alert("Successfully Uploaded Image");
             setFileName("No image selected");
             setFile(null);
             setFileSize("");
         } catch (error) {
             console.error("Pinata upload error:", error);
-            alert("Unable to upload image to Pinata");
+            toast.error("Unable to upload image to Pinata");
         } finally {
             setIsUploading(false);
         }
@@ -52,7 +57,7 @@ const FileUpload = ({ contract, account, provider, triggerRefresh }) => {
 
     const retrieveFile = (e) => {
         const data = e.target.files[0];
-        console.log("selected file:", data);
+        if (!data) return;
         const reader = new FileReader();
         reader.readAsArrayBuffer(data);
         reader.onloadend = () => {
@@ -70,18 +75,37 @@ const FileUpload = ({ contract, account, provider, triggerRefresh }) => {
 
     return (
         <div className="container-custom">
-            <div className="glass card-hover bounce-in max-w-2xl mx-auto p-6 mb-8">
+            <div className="glass bounce-in max-w-2xl mx-auto p-6 mb-8">
                 <form className="space-y-6" onSubmit={handleSubmit}>
                     <div className="text-center">
-                        <h2 className="gradient-text text-2xl font-bold mb-6 text-shadow-lg">Upload Your Image</h2>
+                        <h2 className="gradient-text text-2xl font-bold mb-6 text-shadow-lg">
+                            Upload Your Image
+                        </h2>
                     </div>
 
-                    <div className="flex flex-col items-center space-y-4">
+                    <div className="file-info-grid">
+                        <div className="info-card">
+                            <div className="info-row">
+                                <span className="info-label">File:</span>
+                                <span className="info-value">{fileName}</span>
+                            </div>
+                        </div>
+                        {fileSize && (
+                            <div className="info-card">
+                                <div className="info-row">
+                                    <span className="info-label">Size:</span>
+                                    <span className="info-value">{fileSize}</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="button-container">
                         <label
                             htmlFor="file-upload"
-                            className="btn-primary cursor-pointer px-8 py-4 text-lg"
+                            className="btn-primary btn-compact cursor-pointer"
                         >
-                            📁 Choose Image
+                            Choose
                         </label>
                         <input
                             disabled={!account}
@@ -92,38 +116,19 @@ const FileUpload = ({ contract, account, provider, triggerRefresh }) => {
                             className="hidden"
                             accept="image/*"
                         />
-                    </div>
-
-                    <div className="space-y-3">
-                        <div className="bg-gray-700 bg-opacity-50 p-4 rounded-lg border border-gray-600">
-                            <div className="flex items-center justify-between">
-                                <span className="text-gray-300 text-sm">📄 File:</span>
-                                <span className="text-white font-medium text-sm break-all ml-2">{fileName}</span>
-                            </div>
-                        </div>
-                        {fileSize && (
-                            <div className="bg-gray-700 bg-opacity-50 p-4 rounded-lg border border-gray-600">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-gray-300 text-sm">📊 Size:</span>
-                                    <span className="text-white font-medium">{fileSize}</span>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="flex justify-center">
                         <button
                             type="submit"
-                            className={`btn-success px-10 py-4 text-lg ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`btn-success btn-compact ${isUploading ? "opacity-50 cursor-not-allowed" : ""
+                                }`}
                             disabled={!file || !contract || isUploading}
                         >
                             {isUploading ? (
                                 <div className="flex items-center space-x-2">
-                                    <div className="spinner w-5 h-5"></div>
+                                    <div className="spinner w-3 h-3"></div>
                                     <span>Uploading...</span>
                                 </div>
                             ) : (
-                                "🚀 Upload to IPFS"
+                                "Upload"
                             )}
                         </button>
                     </div>

@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
+import { FaRegCopy, FaCheck } from "react-icons/fa";
 import { ethers } from "ethers";
+import { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import Upload from "./artifacts/contracts/Upload.sol/Upload.json";
 import FileUpload from "./components/FileUpload";
 import Display from "./components/Display";
@@ -12,6 +15,7 @@ function App() {
   const [contract, setContract] = useState(null);
   const [provider, setProvider] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [username, setUsername] = useState('');
   const [chainId, setChainId] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -65,7 +69,7 @@ function App() {
           const contractAddress = getContractAddress(chainId);
           console.log("Resolved Contract Address:", contractAddress);
           if (!contractAddress) {
-            alert("Unsupported network. Please connect to Localhost, Goerli, or Mainnet.");
+            toast.error("Unsupported network. Please connect to Localhost, Goerli, or Mainnet.");
             setNetworkSupported(false);
             setContract(null);
             return;
@@ -128,20 +132,44 @@ function App() {
         <div className="container-custom py-6">
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
             <div className="text-center sm:text-left">
+              <Toaster
+                position="top-center"
+                toastOptions={{
+                  duration: 2000,
+                  style: {
+                    background: '#333',
+                    color: '#fff',
+                  },
+                }}
+              />
               <h1 className="gradient-text text-3xl md:text-4xl font-bold text-shadow-lg">
                 Welcome, {username}
               </h1>
-              <p className="text-gray-300 mt-2 text-sm md:text-base">
-                🔗 Connected: <span className="font-mono text-blue-400 bg-gray-800 px-2 py-1 rounded">{account.slice(0, 6)}...{account.slice(-4)}</span>
+              <p className="text-gray-300 mt-2 text-sm md:text-base flex items-center gap-2">
+                🔗 Connected:
+                <span className="font-mono text-blue-400 bg-gray-800 px-2 py-1 rounded">
+                  {account.slice(0, 6)}...{account.slice(-4)}
+                </span>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(account);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  className="text-white hover:text-green-400 transition duration-200"
+                  title="Copy to clipboard"
+                >
+                  {copied ? <FaCheck size={16} /> : <FaRegCopy size={16} />}
+                </button>
               </p>
             </div>
 
             {!modalOpen && (
               <button
-                className="btn-primary px-8 py-3 text-lg"
+                className="btn-primary px-auto py-2 text-lg"
                 onClick={() => setModalOpen(true)}
               >
-                🤝 Share Access
+                Share Access
               </button>
             )}
           </div>
@@ -153,7 +181,7 @@ function App() {
         {modalOpen && <Modal setModalOpen={setModalOpen} contract={contract} signer={signer} />}
 
         <div className="space-y-8">
-          <FileUpload account={account} provider={provider} contract={contract} triggerRefresh={triggerRefresh} />
+          <FileUpload account={account} signer={signer} contract={contract} triggerRefresh={triggerRefresh} />
           <Display account={account} contract={contract} chainId={chainId} refreshKey={refreshKey} />
         </div>
       </div>
