@@ -37,12 +37,46 @@ const FileUpload = ({ contract, account, signer, triggerRefresh }) => {
             }
 
             const contractWithSigner = contract.connect(signer);
-            const tx = await contractWithSigner.add(account, ImgHash, {
-                gasLimit: 300000,
+            const fileHash = resFile.data.IpfsHash;
+            const fileUrl = `https://gateway.pinata.cloud/ipfs/${fileHash}`;
+
+            // Prepare metadata
+            const metadata = {
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                ipfsUrl: fileUrl,
+            };
+
+            // Upload metadata JSON to Pinata
+            const metadataRes = await axios.post(
+                "https://api.pinata.cloud/pinning/pinJSONToIPFS",
+                metadata,
+                {
+                    headers: {
+                        pinata_api_key: import.meta.env.VITE_PINATA_API_KEY,
+                        pinata_secret_api_key: import.meta.env.VITE_PINATA_SECRET_API_KEY,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            const metadataHash = metadataRes.data.IpfsHash;
+            const metadataUrl = `https://gateway.pinata.cloud/ipfs/${metadataHash}`;
+
+            // Upload metadata URL to contract
+            const estimatedGas = await contractWithSigner.add.estimateGas(account, metadataUrl);
+            const tx = await contractWithSigner.add(account, metadataUrl, {
+                gasLimit: estimatedGas + 50000n,
             });
             await tx.wait();
 
-            toast.success("Successfully Uploaded Image");
+            toast.success(`Uploaded: ${file.name} (${fileSize})`);
+
+
+            console.log("Uploading file:", file.name, file.type, file.size);
+            toast.success(`Uploaded: ${file.name} (${fileSize})`);
+
             triggerRefresh();
             setFileName("No image selected");
             setFile(null);
@@ -98,6 +132,31 @@ const FileUpload = ({ contract, account, signer, triggerRefresh }) => {
                                 </div>
                             </div>
                         )}
+                        {file && (
+                            <div className="mt-4 flex items-center space-x-4">
+                                {file.type.startsWith("image/") ? (
+                                    <img
+                                        src={URL.createObjectURL(file)}
+                                        alt="preview"
+                                        className="w-24 h-24 rounded object-cover border border-gray-600"
+                                    />
+                                ) : file.type.startsWith("video/") ? (
+                                    <video
+                                        src={URL.createObjectURL(file)}
+                                        className="w-24 h-24 object-cover border border-gray-600"
+                                        muted
+                                        autoPlay
+                                        loop
+                                    />
+                                ) : (
+                                    <div className="w-24 h-24 flex items-center justify-center text-sm text-white border border-gray-600 rounded bg-gray-800">
+                                        📄 {file.name.split('.').pop().toUpperCase()}
+                                    </div>
+                                )}
+                                <div className="text-gray-400 text-sm">{file.name}</div>
+                            </div>
+                        )}
+
                     </div>
 
                     <div className="button-container">
@@ -114,7 +173,7 @@ const FileUpload = ({ contract, account, signer, triggerRefresh }) => {
                             name="data"
                             onChange={retrieveFile}
                             className="hidden"
-                            accept="image/*"
+                            accept="image/*,video/*,.pdf,.doc,.docx,.ppt,.pptx"
                         />
                         <button
                             type="submit"

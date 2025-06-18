@@ -29,13 +29,24 @@ const Modal = ({ setModalOpen, contract, signer }) => {
         const accessList = async () => {
             try {
                 const addressList = await contract.shareAccess();
+                const alreadyShared = addressList.some(({ user }) => user.toLowerCase() === address.toLowerCase());
+                if (alreadyShared) {
+                    toast.error("Address already has access");
+                    return;
+                }
                 const select = document.querySelector("#selectNumber");
+                select.innerHTML = '<option class="address">People With Access</option>'; // Reset
+                const uniqueUsers = new Set();
                 addressList.forEach(({ user }) => {
-                    const option = document.createElement("option");
-                    option.textContent = user;
-                    option.value = user;
-                    select.appendChild(option);
+                    if (!uniqueUsers.has(user.toLowerCase())) {
+                        uniqueUsers.add(user.toLowerCase());
+                        const option = document.createElement("option");
+                        option.textContent = user;
+                        option.value = user;
+                        select.appendChild(option);
+                    }
                 });
+
             } catch (err) {
                 console.error("Error fetching access list:", err);
             }
