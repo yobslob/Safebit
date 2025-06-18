@@ -27,7 +27,7 @@ Here’s a preview of the login page:
 - TailwindCSS
 - Ethers.js
 
-### Backend / Blockchain
+### Backend 
 - Solidity Smart Contract (`Upload.sol`)
 - Hardhat for deployment
 - IPFS (via Pinata)
@@ -37,17 +37,17 @@ Here’s a preview of the login page:
 ```bash
 npm install
 ```
-##Local Development
+## Local Development
 To run the frontend:
 
 ```bash
 npm run dev
 ```
-####To deploy the smart contract (in Hardhat):
+#### To deploy the smart contract (in Hardhat):
 
 ```bash
 npx hardhat run scripts/deploy.js --network localhost
 ```
-###Notes
-*You need to configure .env with your Pinata API keys and contract addresses.
-*For testing, use Hardhat local network or Goerli.
+### Notes
+-You need to configure .env with your Pinata API keys and contract addresses.
+-For testing, use Hardhat local network or Goerli.
