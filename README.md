@@ -1,18 +1,18 @@
 # SafeBit
 
-SafeBit is a Web3-based image-sharing DApp built using React and Solidity. It lets users upload images and securely share access to them via the blockchain. Everything runs on smart contracts and IPFS (no centralized server needed).
+SafeBit is a Web3-based file-sharing DApp built using React and Solidity.<br> It lets users upload files and securely share access to them via the blockchain.<br> Everything runs on smart contracts and IPFS (no centralized server needed).
 
 ## About
 
 This is a college-level project made for learning and demo purposes. It allows users to:
 
 - Connect their MetaMask wallet
-- Upload images to IPFS
+- Upload files to IPFS
 - Store and share access via smart contracts
 - View personal and shared files
 - Use a simple and modern UI with React and TailwindCSS
 
-Currently, only images are supported. Working on adding support for more file types and making the layout responsive.
+Currently, only local-host is supported. Working on deploying it on polygon.
 
 > You’ll need MetaMask installed and connected to a testnet like Goerli.
 
