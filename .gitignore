@@ -1,0 +1,40 @@
+# Node modules (both backend and frontend)
+node_modules/
+frontend/node_modules/
+
+# Hardhat artifacts and cache
+artifacts/
+cache/
+typechain/
+typechain-types/
+ignition/modules/
+
+# Hardhat local chain data
+*.log
+*.tsbuildinfo
+
+# dotenv files (never push secrets)
+.env
+.env.local
+.env.*.local
+
+# Coverage reports
+coverage/
+
+# VSCode & IDE stuff
+.vscode/
+.idea/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Build output (frontend)
+frontend/dist/
+frontend/.vite/
+
+# Optional: Ignore ABI JSON exports if you don’t want them versioned
+# frontend/src/abi/*.json
+
+# Optional: Ignore deployed contract addresses if you're storing them locally
+# deployedAddresses.json
