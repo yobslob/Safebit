@@ -49,5 +49,5 @@ npm run dev
 npx hardhat run scripts/deploy.js --network localhost
 ```
 ### Notes
--You need to configure .env with your Pinata API keys and contract addresses.
--For testing, use Hardhat local network or Goerli.
+- You need to configure .env with your Pinata API keys and contract addresses.
+- For testing, use Hardhat local network or Goerli.
