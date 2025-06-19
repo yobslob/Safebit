@@ -4,7 +4,7 @@ SafeBit is a Web3-based file-sharing DApp built using React and Solidity.<br> It
 
 ## About
 
-This is a college-level project made for learning and demo purposes. It allows users to:
+This is a college-level project made for learning and demonstration purposes. It allows users to:
 
 - Connect their MetaMask wallet
 - Upload files to IPFS
@@ -32,24 +32,36 @@ Here’s a preview of the dApp:
 ### Backend 
 - Solidity Smart Contract (`Upload.sol`)
 - Hardhat for deployment
-- IPFS (via Pinata)
+- IPFS (via Lighthouse(NFT.storage) As well as Pinata)
+
+## Pre-requisites
+```bash
+Initialize metamask account with hardhat testnet
+Then Initialize a .env file with API token and secret
+```
 
 ## Installation
 
 ```bash
 npm install
 ```
+
+#### To deploy the smart contract (in Hardhat):
+
+```bash
+npx hardhat run scripts/deploy.js --network localhost
+```
+```bash
+npx hardhat node
+```
+
 ## Local Development
 To run the frontend:
 
 ```bash
 npm run dev
 ```
-#### To deploy the smart contract (in Hardhat):
 
-```bash
-npx hardhat run scripts/deploy.js --network localhost
-```
 ### Notes
 - You need to configure .env with your Pinata API keys and contract addresses.
 - For testing, use Hardhat local network or Goerli.
