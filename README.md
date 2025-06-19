@@ -17,8 +17,8 @@ Currently, only local-host is supported. Working on deploying it on polygon.
 > You’ll need MetaMask installed and connected to a testnet like Goerli.
 
 Here’s a preview of the dApp:  
-![Login Page](src/assets/loginPage.jpg)
-![Dashboard](src/assets/dashboard.jpg)
+![Login Page](src/assets/loginPage.png)
+![Dashboard](src/assets/dashboard.png)
 <br>
 
 ## Tech Stack
